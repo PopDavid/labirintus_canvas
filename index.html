@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<style>
+canvas {
+    border: 1px solid black;
+}
+
+#flex {
+    display: flex;
+    justify-content: center;
+    align-items: space-between;
+    width: 100%;
+}
+
+.invisible {
+    display: none;
+}
+
+.rotate {
+    transform: rotateY(180deg)
+}
+
+.text {
+    font-size: 50px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin: 0 100px;
+}
+
+#timer {
+    width: 60px;
+}
+</style>
+
+<body>
+    <div class="invisible">
+        <img src="apple.png" id="apple" alt="">
+        <img src="cat1.png" id="cat1" alt="">
+        <img src="cat2.png" id="cat2" alt="">
+        <img src="portal.png" id="portal" alt="">
+        <img src="bush.png" id="bush" alt="">
+    </div>
+    <div id="flex">
+        <canvas width="500" height="500" id="canvas"></canvas>
+    </div>
+    <div id="flex">
+        <div id="score" class="text">0</div>
+        <div id="timer" class="text">0</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
