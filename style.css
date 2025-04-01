@@ -1,0 +1,40 @@
+canvas {
+    border: 1px solid black;
+}
+
+#flex {
+    display: flex;
+    justify-content: center;
+    align-items: space-between;
+    width: 100%;
+}
+
+.invisible {
+    display: none;
+}
+
+.rotate {
+    transform: rotateY(180deg)
+}
+
+.text {
+    font-size: 50px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin: 0 100px;
+}
+
+#timer {
+    width: 60px;
+}
+nav {
+    display: flex;
+    justify-content: space-around;
+}
+nav * {
+    width: 100px;
+    height: 25px;
+    background-color: blue;
+    margin-bottom: 10px;
+    color: #fff;
+}
