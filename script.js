@@ -3,6 +3,8 @@ const ctx = c.getContext('2d');
 class Maze {
     constructor (n) {
         this.maze = this.Generate_maze(n, n)
+        this.easyer_make(n)
+        // console.log(this.maze)
     }
     Generate_maze(width, height){
         let vis = [];
@@ -12,41 +14,41 @@ class Maze {
             let temp = [];
             let temp2 = [];
             for(let j = 0;j<width;j++){
-                temp.push(0);
-                temp2.push(1);
+                temp.push(false);
+                temp2.push(false);
             }
             vis.push(temp);
             maze.push(temp2);
         }
-        console.log(n, maze)
         queue.push([1, 1]);
-        maze[0][1] = 0;
+        maze[0][1] = true;
         //kiinduló cella rajzolása
-        /*setTimeout(() => {                
-            ctx.beginPath();
-            ctx.fillStyle = "red";
-            ctx.fillRect(0, 10, 10, 10);
-            ctx.stroke();
-        },1000);*/
-        
         let tick = 0;
         let lastcell;
         while(queue.length){
+            
             tick++;
-            let curr = queue[Math.floor(Math.random() * (queue.length-1))];
+            let i = Math.floor(Math.random() * (queue.length-1))
+            let curr = queue[i];
             const index = queue.indexOf(curr);
             if (index > -1) {
                 queue.splice(index, 1);
             }
-            
-            while(vis[curr[0]][curr[1]]){
-                curr = queue[Math.floor(Math.random() * (queue.length-1))];
-                const index = queue.indexOf(curr);
-                if (index > -1) {
-                    queue.splice(index, 1);
+            try {
+                while(vis[curr[0]][curr[1]]){
+                    curr = queue[Math.floor(Math.random() * (queue.length-1))];
+                    const index = queue.indexOf(curr);
+                    if (index > -1) {
+                        queue.splice(index, 1);
+                    }
                 }
             }
-            vis[curr[0]][curr[1]] = 1;
+            catch {
+                console.log(curr, i, queue)
+                break;
+            }
+            
+
             
             let neighbours = 0;
             if(curr[0]+1 < width-1 && vis[curr[0]+1][curr[1]]){
@@ -61,26 +63,33 @@ class Maze {
             if(curr[1]-1 > 0 && vis[curr[0]][curr[1]-1]){
                 neighbours++;
             }
-    
+            
+            /*if(curr[0]+1 < width-1 && curr[1]+1 < height-1 && vis[curr[0]+1][curr[1]+1]){
+                neighbours++;
+            }
+            if(curr[0]+1 < width-1 && curr[1]-1 > 0 && vis[curr[0]+1][curr[1]-1]){
+                neighbours++;
+            }
+            if(curr[0]-1 > 0 && curr[1]+1 < height-1 && vis[curr[0]-1][curr[0]+1]){
+                neighbours++;
+            }
+            if(curr[0]-1 > 0 && curr[1]-1 < height-1 && vis[curr[0]-1][curr[1]-1]){
+                neighbours++;
+            }*/
+                           
             if(neighbours <= 1){
-                maze[curr[0]][curr[1]] = 0;
-                /*setTimeout(() => {                
-                    ctx.beginPath();
-                    ctx.fillStyle = "white";
-                    ctx.fillRect(curr[0]*10, curr[1]*10, 10, 10);
-                    ctx.stroke();
-                },1000);*/
-    
-                if(curr[0]+1 < width-1 && !vis[curr[0]+1][curr[1]]){
+                vis[curr[0]][curr[1]] = true;
+                maze[curr[0]][curr[1]] = true;
+                if(curr[0]+1 < width-1){
                     queue.push([curr[0]+1, curr[1]]);
                 }
-                if(curr[0]-1 > 0 && !vis[curr[0]-1][curr[1]]){
+                if(curr[0]-1 > 0){
                     queue.push([curr[0]-1, curr[1]]);
                 }
-                if(curr[1]+1 < height-1 && !vis[curr[0]][curr[1]+1]){
+                if(curr[1]+1 < height-1){
                     queue.push([curr[0], curr[1]+1]);
                 }
-                if(curr[1]-1 > 0 && !vis[curr[0]][curr[1]-1]){
+                if(curr[1]-1 > 0){
                     queue.push([curr[0], curr[1]-1]);
                 }
     
@@ -89,13 +98,28 @@ class Maze {
                     lastcell = curr;
                 }
             }
-            
         }
-        maze[lastcell[0]][lastcell[1]] = 0;  
+        //utolsó cella (cél) kirajzolása:   
+        maze[lastcell[0]][lastcell[1]] = true;  
+        maze[0][1] = false
         return maze;
     }
+
+    easyer_make(n) {
+        let rem = n
+        while (rem) {
+            let x = Math.floor(Math.random()*(n-2))+1
+            let y = Math.floor(Math.random()*(n-2))+1
+            // console.log(x, y, this.maze)
+            if (!this.maze[x][y]) {
+                this.maze[x][y] = true;
+                rem--;
+            }
+            // else rem++
+        }
+    }
 }
-let n = 70; 
+let n = 30; 
 let maze = new Maze(n)
 let score = 0;
 let time_started = 0;
@@ -103,10 +127,11 @@ let can_win = 0;
 let tileSize = c.width/n;
 class Player {
     constructor () {
-        this.x = 0;
+        this.x = 1;
         this.y = 1
         this.img = cat1;
         this.oriant = 'right'
+        this.move_counter = 0
     }
 }
 let player = new Player
@@ -133,7 +158,7 @@ function change_size(Myn) {
     do {
         apple.x = Math.floor(Math.random() * n);
         apple.y = Math.floor(Math.random() * n);
-    } while (maze.maze[apple.y][apple.x] === 1 || (apple.x === player.x && apple.y === player.y));
+    } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
 }
 
 const apple_pic = document.getElementById('apple');
@@ -152,7 +177,7 @@ window.onload = () => {
     do {
         apple.x = Math.floor(Math.random() * n);
         apple.y = Math.floor(Math.random() * n);
-    } while (maze.maze[apple.y][apple.x] === 1 || (apple.x === player.x && apple.y === player.y));
+    } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
 }
 
 
@@ -174,7 +199,7 @@ function reachApple ()  {
     do {
         apple.x = Math.floor(Math.random() * n);
         apple.y = Math.floor(Math.random() * n);
-    } while (maze.maze[apple.y][apple.x] === 1 || (apple.x === player.x && apple.y === player.y));
+    } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
     score++;
     document.getElementById('score').innerText = score;
     can_win = score > 9;
@@ -195,13 +220,13 @@ function drawPlayer () {
 function drawMaze() {
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
-            if (maze.maze[i][j] === 1) {
+            if (maze.maze[i][j] == false) {
                 ctx.drawImage(bush, j * tileSize, i * tileSize, tileSize, tileSize);
             }
         }
     }
     if (can_win) {
-       ctx.drawImage(portal, 9 * tileSize, 8 * tileSize, tileSize, tileSize);
+       ctx.drawImage(portal, tileSize, tileSize, tileSize, tileSize);
     }
     ctx.stroke();
 }
@@ -214,20 +239,26 @@ window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
         case 'ArrowUp':
-            if (maze.maze[player.y - 1][player.x] === 0) {
+            if (maze.maze[player.y - 1][player.x] == true) {
                 player.y -= 1;
+                player.move_counter++;
+                document.getElementById('move_counter').innerText = player.move_counter
             }
             break;
         case 's':
         case 'ArrowDown':
-            if (maze.maze[player.y + 1][player.x] === 0) {
+            if (maze.maze[player.y + 1][player.x] == true) {
                 player.y += 1;
+                player.move_counter++;
+                document.getElementById('move_counter').innerText = player.move_counter
             }
             break;
         case 'a':
         case 'ArrowLeft':
-            if (maze.maze[player.y][player.x - 1] === 0 ) {
+            if (maze.maze[player.y][player.x - 1] == true ) {
                 player.x -= 1;
+                player.move_counter++;
+                document.getElementById('move_counter').innerText = player.move_counter
             }
             player.oriant = 'left';
             break;
@@ -237,18 +268,21 @@ window.addEventListener('keydown', (e) => {
                 startTimer();
                 time_started = 1;
             }
-            if (can_win && player.x === 8 && player.y === 8){
-                alert('Time: ' + elapsedTime + 's\ns/Apple: ' + Math.floor(elapsedTime/score*10)/10 + ' s');
-                location.reload();
-            }
-            if (maze.maze[player.y][player.x + 1] === 0 ) {
+            
+            if (maze.maze[player.y][player.x + 1] == true ) {
                 player.x += 1;
+                player.move_counter++;
+                document.getElementById('move_counter').innerText = player.move_counter
             }
             player.oriant = 'right';
             break;
     }
     if (player.x === apple.x && player.y === apple.y) {
         reachApple();
+    }
+    if (can_win && player.x === 1 && player.y === 1){
+        alert('Time: ' + elapsedTime + 's\ns/Apple: ' + Math.floor(elapsedTime/score*10)/10 + ' s\nMove/second' + Math.floor(player.move_counter/elapsedTime*10)/10);
+        location.reload();
     }
     ctx.clearRect(0, 0, c.width, c.height);
     drawMaze();
