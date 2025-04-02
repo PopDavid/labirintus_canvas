@@ -2,10 +2,10 @@ canvas {
     border: 1px solid black;
 }
 
-#flex {
+.flex {
     display: flex;
-    justify-content: center;
-    align-items: space-between;
+    justify-content: space-around;
+    align-items: center;
     width: 100%;
 }
 
@@ -24,6 +24,15 @@ canvas {
     margin: 0 100px;
 }
 
+.flex button {
+    font-size: 64px;
+    width: 400px;
+    height: 100px;
+    background-color: blue;
+    /* margin-bottom: 10px; */
+    color: #fff;
+}
+
 #timer {
     width: 60px;
 }
@@ -32,9 +41,15 @@ nav {
     justify-content: space-around;
 }
 nav * {
-    width: 100px;
-    height: 25px;
+    width: 160px;
+    height: 40px;
     background-color: blue;
     margin-bottom: 10px;
+    font-size: 24px;
+
     color: #fff;
+}
+#stats {
+    margin: auto;
+    width: 50%;
 }
