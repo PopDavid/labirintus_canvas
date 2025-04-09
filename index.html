@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="shortcut icon" href="cat1.png" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -24,10 +25,10 @@
         <input placeholder="írj számot" type="number" id="input1">
     </nav>
     <div class="flex">
-        <div>
-            <button>help little</button>
-            <input placeholder="írj számot" type="number" id="input1">
-
+        <div id="help1">
+            <button id="help_little">help little</button>
+            <br>
+            <input placeholder="írj számot" type="number" id="input2">
         </div>
         <canvas width="1000" height="1000" id="canvas"></canvas>
         <button id="help">help</button>
@@ -36,6 +37,7 @@
         <div id="score" class="text">0</div>
         <div id="timer" class="text">0</div>
         <div id="move_counter" class="text">0</div>
+        <div id="moves_until" class="text">0</div>
     </div>
     <script src="script.js"></script>
 </body>

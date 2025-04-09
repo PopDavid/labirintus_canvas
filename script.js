@@ -1,13 +1,17 @@
+const apple_pic = document.getElementById('apple');
+cat1 = document.getElementById('cat1');
+cat2 = document.getElementById('cat2');
+portal = document.getElementById('portal');
+bush = document.getElementById('bush');
+x = document.getElementById('x');
 const c = document.getElementById('canvas');
 const ctx = c.getContext('2d');
 class Maze {
     constructor (n) {
         this.maze = this.Generate_maze(n, n)
         this.easyer_make(n)
-        // console.log(this.maze)
     }
     Generate_maze(width, height){
-        console.log('rajzol')
         let vis = [];
         let maze = [];
         let queue = [];
@@ -23,13 +27,11 @@ class Maze {
         }
         queue.push([1, 1]);
         maze[0][1] = true;
-        //kiinduló cella rajzolása
         let tick = 0;
         let lastcell;
         while(queue.length){
-            
             tick++;
-            let i = Math.floor(Math.random() * (queue.length-1))
+            let i = Math.floor(Math.random() * (queue.length-1));
             let curr = queue[i];
             const index = queue.indexOf(curr);
             if (index > -1) {
@@ -45,7 +47,6 @@ class Maze {
                 }
             }
             catch {
-                // console.log(curr, i, queue)
                 break;
             }
             
@@ -88,7 +89,7 @@ class Maze {
         }
         //utolsó cella (cél) kirajzolása:   
         maze[lastcell[0]][lastcell[1]] = true;  
-        maze[0][1] = false
+        maze[0][1] = false;
         return maze;
     }
 
@@ -97,7 +98,6 @@ class Maze {
         while (rem) {
             let x = Math.floor(Math.random()*(n-2))+1
             let y = Math.floor(Math.random()*(n-2))+1
-            // console.log(x, y, this.maze)
             if (!this.maze[x][y]) {
                 this.maze[x][y] = true;
                 rem--;
@@ -120,7 +120,6 @@ class Maze {
             vis.push(temp);
             parents.push(temp2);
         }
-        console.log(vis)
         parents[player.y][player.x] = {x: player.y, y: player.x};
 
         queue.push([player.y, player.x]);
@@ -152,28 +151,15 @@ class Maze {
             }
         }
         let ans_array = []
-        let ans = {x: apple.y,y: apple.x};
-        try {
-            console.log(parents[ans.x][ans.y].x != player.x + " " + parents[ans.x][ans.y].y != player.y);
-        }catch(e){
-            console.log(parents, ans);
-        }
+        let ans = {x: apple.y,y: apple.x}
         while((parents[ans.x][ans.y].x != player.y || parents[ans.x][ans.y].y != player.x)){
             ans = parents[ans.x][ans.y];
             ans_array.push(ans);
-            // try {
-            //     console.log(parents[ans.x][ans.y].x != player.x + " " + parents[ans.x][ans.y].y != player.y);
-            // }catch(e){
-            //     console.log(parents, ans);
-            // }
         }
         ans_array = ans_array.reverse();
-        console.log(parents[ans.x][ans.y].x != player.x, parents[ans.x][ans.y].y != player.y)
-        console.log(ans_array)
         let tartok = 0;
-        while(tartok < length) {
+        while(tartok < length && ans_array.length-tartok) {
             ans = ans_array[tartok]
-            console.log(tartok, length)
             drawTile(ans.x, ans.y, false, x)
             tartok++;
         }
@@ -199,20 +185,21 @@ let player = new Player
 
 
 function change_size(Myn) {
-    console.log('change size');
     n = Myn;
     maze = new Maze(n)
     score = 0;
     time_started = 0;
     can_win = 0;
+    apple.total_distance = 0;
+    player.move_counter = 0;
     tileSize = c.width/n;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMaze(n, true);
-    stopTimer();
     score = 0;
     document.getElementById('score').innerText = score;
     elapsedTime = 0; 
     document.getElementById('timer').innerText = elapsedTime;
+    document.getElementById('move_counter').innerText = player.move_counter
     time_started = 0
     player.x = 1
     player.y = 1
@@ -220,21 +207,76 @@ function change_size(Myn) {
         apple.x = Math.floor(Math.random() * n);
         apple.y = Math.floor(Math.random() * n);
     } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
+    apple.dis()
+    
     draw_apple();
-    console.log(apple.x ,apple.y, player.x, player.y)
     drawPlayer();
+    stopTimer();
 }
+class Apple {
+    constructor () {
+        this.x = 0;
+        this.y = -10
+        this.distance = 0;
+        this.total_distance = 0;
+        this.moved_since_last = 0;
+    }
+    dis () {
+        apple.moved_since_last = 0
+        let vis = [];
+        let queue = [];
+        let distances = [];
+        for(let i = 0;i<n;i++){
+            let temp = [];
+            let temp2 = [];
+            for(let j = 0;j<n;j++){
+                temp.push(false);
+                temp2.push(-1);
+            }
+            vis.push(temp);
+            distances.push(temp2);
+        }
 
-const apple_pic = document.getElementById('apple');
-cat1 = document.getElementById('cat1');
-cat2 = document.getElementById('cat2');
-portal = document.getElementById('portal');
-bush = document.getElementById('bush');
-x = document.getElementById('x');
-let apple = {
-    x: 0,
-    y: -10
+        queue.push([player.y, player.x]);
+        vis[player.y][player.x] = true;
+        distances[player.x][player.y] = 0; 
+        while(queue.length){
+            let curr = queue[0];
+            let x = curr[0];
+            let y = curr[1];
+            queue.splice(0, 1);
+            if(maze.maze[x+1][y] && !vis[x+1][y]){
+                queue.push([x+1, y]);
+                vis[x+1][y] = true;
+                distances[x+1][y] = distances[x][y]+1;
+            }
+            if(maze.maze[x-1][y] && !vis[x-1][y]){
+                queue.push([x-1, y]);
+                vis[x-1][y] = true;
+                distances[x-1][y] = distances[x][y]+1;
+            }
+            if(maze.maze[x][y+1] && !vis[x][y+1]){
+                queue.push([x, y+1]);
+                vis[x][y+1] = true;
+                distances[x][y+1] = distances[x][y]+1;
+            }
+            if(maze.maze[x][y-1] && !vis[x][y-1]){
+                queue.push([x, y-1]);
+                vis[x][y-1] = true;
+                distances[x][y-1] = distances[x][y]+1;
+            }
+        }
+        let ans = distances[apple.y][apple.x];
+        
+        apple.total_distance += ans
+        apple.distance = ans;
+
+        document.getElementById('moves_until').innerText = Math.floor(apple.distance*1.35) - apple.moved_since_last;
+
+        
+    }
 }
+let apple = new Apple();
 window.onload = () => {
     drawMaze(n, true);
     drawPlayer();
@@ -243,7 +285,7 @@ window.onload = () => {
         apple.y = Math.floor(Math.random() * n);
     } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
     draw_apple()
-    // console.log(apple.x, apple.y)
+    apple.dis()
 }
 
 function startTimer() {
@@ -257,6 +299,7 @@ function updateTime() {
 }
 
 function stopTimer() {
+    if (!time_started) return;
     clearInterval(timerInterval);
 }
 
@@ -267,7 +310,9 @@ function reachApple ()  {
     } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
     score++;
     document.getElementById('score').innerText = score;
+    apple.dis()
     can_win = score > 9;
+    apple.moved_since_last = 0
 }
 
 function drawPlayer () {
@@ -281,7 +326,6 @@ function drawTile(x, y, wait, img = bush) {
         ctx.drawImage(img, y * tileSize, x * tileSize, tileSize, tileSize);
     }, 20 + wait*50);
 }
-
 
 function drawMaze(num = n, firstdraw = false) {
     if(firstdraw){
@@ -302,7 +346,6 @@ function drawMaze(num = n, firstdraw = false) {
                 }
             }
             catch (e) {
-                console.log(num, i)
             }
         }
     }else{
@@ -336,6 +379,7 @@ window.addEventListener('keydown', (e) => {
                 }
                 player.y -= 1;
                 player.move_counter++;
+                apple.moved_since_last++;
                 document.getElementById('move_counter').innerText = player.move_counter
             }
             break;
@@ -348,6 +392,7 @@ window.addEventListener('keydown', (e) => {
                 }
                 player.y += 1;
                 player.move_counter++;
+                apple.moved_since_last++;
                 document.getElementById('move_counter').innerText = player.move_counter
             }
             break;
@@ -360,6 +405,7 @@ window.addEventListener('keydown', (e) => {
                 }
                 player.x -= 1;
                 player.move_counter++;
+                apple.moved_since_last++;
                 document.getElementById('move_counter').innerText = player.move_counter
             }
             player.oriant = 'left';
@@ -373,6 +419,7 @@ window.addEventListener('keydown', (e) => {
                 }
                 player.x += 1;
                 player.move_counter++;
+                apple.moved_since_last++;
                 document.getElementById('move_counter').innerText = player.move_counter
             }
             player.oriant = 'right';
@@ -382,18 +429,31 @@ window.addEventListener('keydown', (e) => {
         reachApple();
     }
     if (can_win && player.x === 1 && player.y === 1){
-        alert('Time: ' + elapsedTime + 's\ns/Apple: ' + Math.floor(elapsedTime/score*10)/10 + ' s\nMove/second' + Math.floor(player.move_counter/elapsedTime*10)/10);
+        console.log(player.move_counter,apple.total_distance)
+        alert('Time: ' + elapsedTime + 's\ns/Apple: '
+            + Math.floor(elapsedTime/score*10)/10 + ' s\nMove/second: '
+            + Math.floor(player.move_counter/elapsedTime*10)/10);
         location.reload();
     }
+    document.getElementById('moves_until').innerText = Math.floor(apple.distance*1.35) - apple.moved_since_last ;
+    if (Math.floor(apple.distance*1.35) - apple.moved_since_last < 0) {
+        do {
+            apple.x = Math.floor(Math.random() * n);
+            apple.y = Math.floor(Math.random() * n);
+        } while (maze.maze[apple.y][apple.x] == false || (apple.x === player.x && apple.y === player.y));
+        apple.dis()
+    }
+    
+
     ctx.clearRect(0, 0, c.width, c.height);
     drawMaze();
     draw_apple();
     drawPlayer();
-    // e.preventDefault();
 }, true);
 
 document.getElementById('easy_BTN').addEventListener('click', () => change_size(50))
 document.getElementById('medium_BTN').addEventListener('click', () => change_size(70))
 document.getElementById('hard_BTN').addEventListener('click', () => change_size(100))
-document.getElementById('custom_BTN').addEventListener('click', (e) => change_size(document.getElementById('input1').value), true)
+document.getElementById('custom_BTN').addEventListener('click', (e) => change_size(+document.getElementById('input1').value), true)
 document.getElementById('help').addEventListener('click', () => {maze.Give_help(100000)})
+document.getElementById('help_little').addEventListener('click', () => {maze.Give_help(+document.getElementById('input2').value)})
